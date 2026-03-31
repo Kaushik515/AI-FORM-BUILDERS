@@ -1,0 +1,17 @@
+{
+  "name": "ui-builder-ai-automation-poc",
+  "version": "1.0.0",
+  "description": "AI-driven form configuration automation for UI Builder",
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js",
+    "server": "node server.js",
+    "demo": "node src/main.js --prompt \"Create a big movie form with title, director, cast, year and reviews\""
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.22.1",
+    "mongodb": "^6.6.2"
+  }
+}

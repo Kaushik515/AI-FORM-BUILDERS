@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Form Generator</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <h1>🤖 AI Form Generator</h1>
+        <p class="subtitle">Auto-generate form configurations using natural language prompts</p>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="layout">
+        <!-- Left Panel: Generator -->
+        <section class="panel generator-panel">
+          <div class="panel-header">
+            <h2>📝 Generate Form</h2>
+          </div>
+          
+          <div class="form-group">
+            <label for="promptInput">Describe your form:</label>
+            <textarea 
+              id="promptInput"
+              class="prompt-input"
+              placeholder="Example: Create a movie intake form with title, director, cast, year, and reviews"
+              rows="4"
+            ></textarea>
+            <div class="hint">💡 Tip: Be descriptive! Include field names like 'with title, director, cast, year'</div>
+          </div>
+
+          <button id="generateBtn" class="btn btn-primary">
+            <span class="btn-text">Generate Form</span>
+            <span class="btn-loader hidden">⏳ Generating...</span>
+          </button>
+
+          <div id="generationResult" class="result-box hidden">
+            <div class="result-header">✅ Form Generated Successfully!</div>
+            <div class="result-content">
+              <p><strong>Form Name:</strong> <span id="resultName"></span></p>
+              <p><strong>Form ID:</strong> <code id="resultId"></code></p>
+              <p><strong>Fields:</strong> <span id="resultFields"></span></p>
+              <p><strong>Connectors:</strong> <span id="resultConnectors"></span></p>
+            </div>
+          </div>
+
+          <div id="errorBox" class="error-box hidden">
+            <strong>❌ Error:</strong>
+            <p id="errorMessage"></p>
+          </div>
+
+          <!-- Recent Prompts -->
+          <div class="recent-prompts">
+            <h3>📌 Quick Templates</h3>
+            <div class="prompt-buttons">
+              <button class="prompt-template" data-prompt="Create a big movie form with title, director, cast, year and reviews">
+                Movie Form
+              </button>
+              <button class="prompt-template" data-prompt="Create a customer registration form with name, email, phone, address, and company">
+                Customer Form
+              </button>
+              <button class="prompt-template" data-prompt="Create an employee onboarding form with name, position, department, start date, and resume">
+                Employee Form
+              </button>
+              <button class="prompt-template" data-prompt="Create a product feedback form with product name, rating, comments, and email">
+                Feedback Form
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right Panel: Form List -->
+        <section class="panel forms-panel">
+          <div class="panel-header">
+            <h2>📚 Generated Forms</h2>
+            <button id="refreshBtn" class="btn btn-sm btn-secondary">🔄 Refresh</button>
+          </div>
+
+          <div id="formsList" class="forms-grid">
+            <div class="loading">Loading forms...</div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Form Detail Modal -->
+    <div id="formModal" class="modal hidden">
+      <div class="modal-content">
+        <button id="closeModal" class="modal-close">&times;</button>
+        <div id="formDetails" class="form-details">
+          <!-- Details will be loaded here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" class="modal-overlay hidden"></div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
