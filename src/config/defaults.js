@@ -2,10 +2,13 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const fallbackUri = "mongodb://formengine:formengine1234@ec2-65-1-207-137.ap-south-1.compute.amazonaws.com:27017/";
+if (!process.env.MONGODB_URI) {
+  console.error("ERROR: MONGODB_URI is not set. Copy .env.example to .env and fill in your credentials.");
+  process.exit(1);
+}
 
 export const CONFIG = {
-  mongodbUri: process.env.MONGODB_URI || fallbackUri,
+  mongodbUri: process.env.MONGODB_URI,
   dbName: process.env.MONGODB_DB_NAME || "dfe",
   sourceCollection: process.env.MONGODB_COLLECTION || "connectors",
   prompt:
