@@ -606,8 +606,8 @@ app.post("/api/forms/:id/publish", async (req, res) => {
       db: targetDb,
       pocForm,
       createdBy: "AI Form Generator",
-      companyId: 0,
-      companyName: "",
+      companyId: CONFIG.companyId,
+      companyName: CONFIG.companyName,
       createDataQueries: true,
     });
 
