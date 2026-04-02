@@ -14,7 +14,13 @@ export async function persistOutputs({
     connectors: payload.formJson.connectors,
     rules: payload.rules,
     dependencies: payload.dependencies,
+    sourceDatabase: payload.sourceDatabase,
     sourceCollection: payload.sourceCollection,
+    // GrapeJS-compatible data (matches real UI Builder format)
+    grapesFormObjects: payload.grapesFormObjects || null,
+    grapesRuleData: payload.grapesRuleData || null,
+    grapesDataQueries: payload.grapesDataQueries || null,
+    grapesMetadata: payload.grapesMetadata || null,
     createdAt: new Date(),
     updatedAt: new Date(),
     status: "draft",

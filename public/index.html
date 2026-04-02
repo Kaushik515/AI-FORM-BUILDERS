@@ -24,6 +24,17 @@
           <div class="panel-header">
             <h2>📝 Generate Form</h2>
           </div>
+
+          <div class="form-group">
+            <label for="databaseSelect">Database:</label>
+            <select id="databaseSelect" class="prompt-input"></select>
+          </div>
+
+          <div class="form-group">
+            <label for="collectionSelect">Collection:</label>
+            <select id="collectionSelect" class="prompt-input"></select>
+            <div class="hint">The selected database and collection will drive field discovery and connectors.</div>
+          </div>
           
           <div class="form-group">
             <label for="promptInput">Describe your form:</label>
@@ -60,17 +71,17 @@
           <div class="recent-prompts">
             <h3>📌 Quick Templates</h3>
             <div class="prompt-buttons">
-              <button class="prompt-template" data-prompt="Create a big movie form with title, director, cast, year and reviews">
-                Movie Form
+              <button class="prompt-template" data-prompt="Create a connector form with title, url, verb, module, headers and body">
+                Connector Form
               </button>
-              <button class="prompt-template" data-prompt="Create a customer registration form with name, email, phone, address, and company">
-                Customer Form
+              <button class="prompt-template" data-prompt="Create a form with title, module, createdBy, createdAt, updatedAt and url">
+                Data Query Form
               </button>
-              <button class="prompt-template" data-prompt="Create an employee onboarding form with name, position, department, start date, and resume">
-                Employee Form
+              <button class="prompt-template" data-prompt="Create a form">
+                Auto-detect All Fields
               </button>
-              <button class="prompt-template" data-prompt="Create a product feedback form with product name, rating, comments, and email">
-                Feedback Form
+              <button class="prompt-template" data-prompt="Create a form with authentication, verb, headers, query_string and body">
+                API Config Form
               </button>
             </div>
           </div>

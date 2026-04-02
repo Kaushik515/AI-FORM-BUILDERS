@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Preview - UI Builder</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
+    .preview-header { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; padding: 18px 30px; display: flex; align-items: center; gap: 16px; }
+    .preview-header h1 { font-size: 20px; margin: 0; }
+    .preview-header .back-btn { color: #a0aec0; text-decoration: none; font-size: 14px; }
+    .preview-header .back-btn:hover { color: white; }
+    .preview-container { max-width: 960px; margin: 30px auto; }
+    .form-card { background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 36px; }
+    .json-panel { background: #1e1e2e; color: #a6e3a1; border-radius: 12px; padding: 20px; margin-top: 24px; font-size: 13px; overflow: auto; max-height: 500px; }
+    .json-panel pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+    .tabs-bar { display: flex; gap: 0; margin-bottom: 24px; }
+    .tabs-bar button { padding: 10px 24px; border: none; background: #e2e8f0; cursor: pointer; font-size: 14px; font-weight: 500; }
+    .tabs-bar button.active { background: #3b82f6; color: white; }
+    .tabs-bar button:first-child { border-radius: 8px 0 0 8px; }
+    .tabs-bar button:last-child { border-radius: 0 8px 8px 0; }
+    .meta-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .meta-badge { background: #e8f4fd; color: #1e40af; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .field-type-badge { background: #f0fdf4; color: #166534; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; display: inline-block; margin-left: 8px; }
+    .rendered-form label { font-weight: 600; font-size: 14px; margin-bottom: 6px; display: block; color: #334155; }
+    .rendered-form .form-control, .rendered-form .form-select { border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 14px; font-size: 14px; }
+    .rendered-form .form-control:focus, .rendered-form .form-select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+    .rendered-form .mb-row { margin-bottom: 20px; }
+    .rendered-form .btn-primary { background: #3b82f6; border: none; padding: 10px 28px; border-radius: 6px; font-size: 14px; font-weight: 500; }
+    .rendered-form .btn-secondary { background: #64748b; border: none; padding: 10px 28px; border-radius: 6px; font-size: 14px; font-weight: 500; }
+    .required-star { color: #ef4444; margin-left: 2px; }
+    .switch-container { display: flex; align-items: center; gap: 10px; }
+    .switch-toggle { width: 44px; height: 24px; background: #cbd5e1; border-radius: 12px; position: relative; cursor: pointer; transition: background 0.2s; }
+    .switch-toggle.active { background: #3b82f6; }
+    .switch-toggle::after { content: ''; width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.2s; }
+    .switch-toggle.active::after { left: 22px; }
+    .star-rating { display: flex; gap: 4px; cursor: pointer; }
+    .star-rating .star { font-size: 24px; color: #d1d5db; transition: color 0.15s; }
+    .star-rating .star.filled { color: #f59e0b; }
+    .loading-spinner { text-align: center; padding: 60px; color: #64748b; }
+    .component-info { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+    .component-info h4 { font-size: 14px; margin: 0 0 8px; color: #475569; }
+    .component-info code { font-size: 12px; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="preview-header">
+    <a href="/" class="back-btn">&larr; Back</a>
+    <h1 id="formTitle">Form Preview</h1>
+    <div style="margin-left:auto;">
+      <span id="formStatus" class="meta-badge">Loading...</span>
+    </div>
+  </div>
+
+  <div class="preview-container">
+    <div class="tabs-bar">
+      <button class="active" onclick="switchTab('preview')">Live Preview</button>
+      <button onclick="switchTab('json')">GrapeJS JSON</button>
+      <button onclick="switchTab('components')">Component Map</button>
+    </div>
+
+    <div id="previewTab" class="form-card">
+      <div class="loading-spinner">Loading form...</div>
+    </div>
+
+    <div id="jsonTab" class="json-panel" style="display:none;">
+      <pre id="jsonContent">Loading...</pre>
+    </div>
+
+    <div id="componentsTab" style="display:none;"></div>
+  </div>
+
+  <script>
+    const formId = new URLSearchParams(window.location.search).get('id');
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tabs-bar button').forEach(b => b.classList.remove('active'));
+      document.getElementById('previewTab').style.display = tab === 'preview' ? 'block' : 'none';
+      document.getElementById('jsonTab').style.display = tab === 'json' ? 'block' : 'none';
+      document.getElementById('componentsTab').style.display = tab === 'components' ? 'block' : 'none';
+      event.target.classList.add('active');
+    }
+
+    async function fetchConnectorOptions(connectorId) {
+      if (!formId || !connectorId) return [];
+      const res = await fetch(`/api/forms/${formId}/connectors/${connectorId}/options`);
+      const result = await res.json();
+      if (!result.success) return [];
+      return Array.isArray(result.data) ? result.data : [];
+    }
+
+    async function hydrateConnectorInputs() {
+      const elements = document.querySelectorAll('[data-connector-id]');
+      for (const element of elements) {
+        const connectorId = element.dataset.connectorId;
+        if (!connectorId) continue;
+
+        try {
+          const options = await fetchConnectorOptions(connectorId);
+
+          if (element.tagName.toLowerCase() === 'select') {
+            const fieldName = element.dataset.fieldName || 'option';
+            element.innerHTML = `<option value="">-- Select ${fieldName} --</option>`;
+            options.forEach((opt) => {
+              const optionEl = document.createElement('option');
+              optionEl.value = String(opt.value ?? '');
+              optionEl.textContent = String(opt.label ?? opt.value ?? '');
+              element.appendChild(optionEl);
+            });
+          } else {
+            const listId = element.getAttribute('list');
+            const datalist = listId ? document.getElementById(listId) : null;
+            if (datalist) {
+              datalist.innerHTML = '';
+              options.forEach((opt) => {
+                const optionEl = document.createElement('option');
+                optionEl.value = String(opt.label ?? opt.value ?? '');
+                datalist.appendChild(optionEl);
+              });
+            }
+          }
+        } catch (e) {
+          // Keep preview usable even if connector fetch fails.
+        }
+      }
+    }
+
+    async function loadForm() {
+      if (!formId) {
+        document.getElementById('previewTab').innerHTML = '<p>No form ID provided. <a href="/">Go back</a></p>';
+        return;
+      }
+      try {
+        const res = await fetch(`/api/forms/${formId}/grapes`);
+        const result = await res.json();
+        if (!result.success) throw new Error(result.error);
+
+        const { name, formObjects, ruleData, dataQueries, metadata } = result.data;
+        document.getElementById('formTitle').textContent = name || 'Form Preview';
+        document.getElementById('formStatus').textContent = `${metadata?.componentTypes?.length || 0} fields`;
+        document.getElementById('jsonContent').textContent = JSON.stringify(formObjects, null, 2);
+
+        renderForm(formObjects, metadata);
+        renderComponentMap(metadata);
+      } catch (err) {
+        document.getElementById('previewTab').innerHTML = `<p style="color:#ef4444;">Error: ${err.message}</p>`;
+      }
+    }
+
+    function renderForm(formObjects, metadata) {
+      if (!formObjects?.pages?.[0]?.frames?.[0]?.component?.components) {
+        document.getElementById('previewTab').innerHTML = '<p>No form components found.</p>';
+        return;
+      }
+
+      const root = formObjects.pages[0].frames[0].component.components;
+      const html = renderComponents(root);
+      document.getElementById('previewTab').innerHTML = `<div class="rendered-form">${html}</div>`;
+
+      // Wire up interactive elements
+      document.querySelectorAll('.switch-toggle').forEach(el => {
+        el.addEventListener('click', () => el.classList.toggle('active'));
+      });
+      document.querySelectorAll('.star-rating .star').forEach(star => {
+        star.addEventListener('click', (e) => {
+          const rating = parseInt(e.target.dataset.value);
+          const container = e.target.closest('.star-rating');
+          container.querySelectorAll('.star').forEach(s => {
+            s.classList.toggle('filled', parseInt(s.dataset.value) <= rating);
+          });
+        });
+      });
+
+      hydrateConnectorInputs();
+    }
+
+    function renderComponents(components) {
+      if (!Array.isArray(components)) return '';
+      return components.map(comp => renderSingleComponent(comp)).join('');
+    }
+
+    function getClasses(comp) {
+      if (!comp.classes) return '';
+      return comp.classes.map(c => typeof c === 'string' ? c : c.name).join(' ');
+    }
+
+    function renderSingleComponent(comp) {
+      const cls = getClasses(comp);
+      const attrs = comp.attributes || {};
+      const name = attrs.name || '';
+      const required = attrs.required;
+
+      switch (comp.type) {
+        case 'wrapper':
+        case 'default':
+          return `<div class="${cls}">${renderComponents(comp.components)}</div>`;
+
+        case 'form':
+          return `<form class="${cls}" onsubmit="event.preventDefault(); alert('Form submitted!')">${renderComponents(comp.components)}</form>`;
+
+        case 'titleComponent':
+          return `<h2 class="${cls}">${comp.content || attrs.label || ''}</h2>`;
+
+        case 'input': {
+          const typeId = typeof attrs.type === 'object' ? attrs.type.id : (attrs.type || 'text');
+          const reqStar = required ? '<span class="required-star">*</span>' : '';
+          return `<div class="mb-row">
+            ${comp.components ? renderComponents(comp.components) : ''}
+            <input type="${typeId === 'number' ? 'number' : typeId}" name="${name}" 
+              placeholder="${attrs.placeholder || ''}" class="form-control" 
+              ${required ? 'required' : ''}
+              ${attrs.minLength ? `min="${attrs.minLength}"` : ''}
+              ${attrs.maxLength ? `maxlength="${attrs.maxLength}"` : ''} />
+          </div>`;
+        }
+
+        case 'myDateTimeComponent': {
+          const dateType = typeof attrs.type === 'object' ? attrs.type.id : 'datePicker';
+          return `<div class="mb-row">
+            ${comp.components ? renderComponents(comp.components) : ''}
+            <input type="${dateType === 'timepicker' ? 'time' : 'date'}" name="${name}" class="form-control" ${required ? 'required' : ''} />
+          </div>`;
+        }
+
+        case 'textarea':
+          return `<div class="mb-row">
+            ${comp.components ? renderComponents(comp.components) : ''}
+            <textarea name="${name}" placeholder="${attrs.placeholder || ''}" class="form-control" rows="4" ${required ? 'required' : ''}></textarea>
+          </div>`;
+
+        case 'custom-dropdown':
+        case 'select': {
+          const dsLabel = attrs.data_source?.label || '';
+          const connectorId = attrs.data_source?.id || '';
+          return `<div class="mb-row">
+            ${comp.components ? renderComponents(comp.components) : ''}
+            <select name="${name}" class="form-select" data-field-name="${name}" data-connector-id="${connectorId}" ${required ? 'required' : ''}>
+              <option value="">-- Select ${name} --</option>
+              ${dsLabel ? `<option disabled>(Data from: ${dsLabel})</option>` : ''}
+            </select>
+            ${dsLabel ? `<small class="text-muted">Connected to: ${dsLabel}</small>` : ''}
+          </div>`;
+        }
+
+        case 'typeaheadComponent':
+        case 'dropdownConnector': {
+          const dsLabel = attrs.data_source?.label || '';
+          const connectorId = attrs.data_source?.id || '';
+          return `<div class="mb-row">
+            ${comp.components ? renderComponents(comp.components) : ''}
+            <input type="text" name="${name}" placeholder="Search ${name}..." class="form-control" list="${name}-list" data-field-name="${name}" data-connector-id="${connectorId}" />
+            <datalist id="${name}-list"></datalist>
+            ${dsLabel ? `<small class="text-muted">Connected to: ${dsLabel}</small>` : ''}
+          </div>`;
+        }
+
+        case 'custom-checkbox':
+          return `<div class="mb-row form-check">
+            <input type="checkbox" name="${name}" class="form-check-input" id="chk-${name}" />
+            <label class="form-check-label" for="chk-${name}">${attrs.label || name}</label>
+          </div>`;
+
+        case 'custom-radio':
+          const labels = (attrs.labels || '').split(',');
+          const values = (attrs.values || '').split(',');
+          const radios = labels.map((l, i) => 
+            `<div class="form-check form-check-inline">
+              <input type="radio" name="${name}" value="${values[i] || l}" class="form-check-input" id="rad-${name}-${i}" />
+              <label class="form-check-label" for="rad-${name}-${i}">${l.trim()}</label>
+            </div>`
+          ).join('');
+          return `<div class="mb-row">${radios}</div>`;
+
+        case 'switch-button':
+          return `<div class="mb-row switch-container">
+            <div class="switch-toggle" data-name="${name}"></div>
+            <span>${attrs.label || name}</span>
+          </div>`;
+
+        case 'starRating':
+          const max = parseInt(attrs.maxStars) || 5;
+          const stars = Array.from({length: max}, (_, i) => 
+            `<span class="star" data-value="${i+1}">&#9733;</span>`
+          ).join('');
+          return `<div class="mb-row">
+            <label>${attrs.label || name}</label>
+            <div class="star-rating" data-name="${name}">${stars}</div>
+          </div>`;
+
+        case 'button': {
+          const btnType = attrs.buttonType?.id || 'save';
+          const btnClass = btnType === 'save' ? 'btn-primary' : 'btn-secondary';
+          return `<button type="${btnType === 'save' ? 'submit' : 'button'}" class="btn ${btnClass} me-2">${comp.content || 'Button'}</button>`;
+        }
+
+        case 'label':
+          return `<label class="${cls}" for="${attrs.for || ''}">${renderComponents(comp.components)}</label>`;
+
+        case 'textnode':
+          return comp.content || '';
+
+        default:
+          if (comp.components) {
+            const tag = comp.tagName || 'div';
+            return `<${tag} class="${cls}">${renderComponents(comp.components)}</${tag}>`;
+          }
+          return comp.content || '';
+      }
+    }
+
+    function renderComponentMap(metadata) {
+      if (!metadata?.componentTypes) return;
+      const html = metadata.componentTypes.map(ct => `
+        <div class="component-info">
+          <h4>${ct.field} <span class="field-type-badge">${ct.type}</span></h4>
+          <div>Maps to UI Builder component: <code>${ct.type}</code></div>
+        </div>
+      `).join('');
+      document.getElementById('componentsTab').innerHTML = `
+        <div class="meta-badges mb-3">
+          <span class="meta-badge">Form: ${metadata.formName}</span>
+          <span class="meta-badge">Entity: ${metadata.entity}</span>
+          <span class="meta-badge">Generated: ${new Date(metadata.generatedAt).toLocaleString()}</span>
+        </div>
+        ${html}
+      `;
+    }
+
+    loadForm();
+  </script>
+</body>
+</html>

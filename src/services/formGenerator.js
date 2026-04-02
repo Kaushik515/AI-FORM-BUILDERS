@@ -113,13 +113,6 @@ export function generateFormConfig({ parsedPrompt, schema, connectorsBundle }) {
   });
 
   const dependencies = [];
-  if (selectedFields.some((f) => f.fieldName.toLowerCase() === "cast") && selectedFields.some((f) => f.fieldName.toLowerCase() === "title")) {
-    dependencies.push({
-      sourceField: "title",
-      targetField: "cast",
-      behavior: "refreshOptionsOnChange",
-    });
-  }
 
   return {
     selectedFields,
